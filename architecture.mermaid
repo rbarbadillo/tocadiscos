@@ -1,0 +1,87 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1DB954', 'primaryTextColor': '#fff', 'primaryBorderColor': '#1ed760', 'lineColor': '#333', 'secondaryColor': '#191414', 'tertiaryColor': '#535353'}}}%%
+
+flowchart TB
+    subgraph External["External Services"]
+        LASTFM[(fa:fa-music Last.fm API)]
+        WEB[(fa:fa-globe Web Search)]
+        LLM[(fa:fa-robot Claude/LLM)]
+    end
+
+    subgraph LangGraph["LangGraph Workflow"]
+        direction TB
+        START((Start)) --> FETCH
+        
+        FETCH["📊 Fetch Listening Data
+        ─────────────────
+        • Get last 30 days scrobbles
+        • Aggregate by artist
+        • Extract genre tags
+        • Build taste profile"]
+        
+        FETCH --> ROUTER{Route by Type}
+        
+        ROUTER -->|new_releases| SEARCH_NEW["🔍 Search New Releases
+        ─────────────────
+        • Genre-specific searches
+        • Similar artist releases
+        • This week's albums"]
+        
+        ROUTER -->|classics| SEARCH_CLASSIC["🔍 Search Classics
+        ─────────────────
+        • Greatest albums lists
+        • Exclude known artists
+        • Cross-genre discovery"]
+        
+        SEARCH_NEW --> GENERATE
+        SEARCH_CLASSIC --> GENERATE
+        
+        GENERATE["🤖 Generate Recommendations
+        ─────────────────
+        • Analyze taste profile
+        • Filter search results
+        • Create personalized list
+        • Explain each pick"]
+        
+        GENERATE --> END_NODE((End))
+    end
+
+    subgraph Observability["Langfuse Observability"]
+        TRACES["📈 Traces
+        • Latency per node
+        • LLM token usage
+        • Cost tracking"]
+        
+        SESSIONS["🔗 Sessions
+        • Group related runs
+        • User attribution"]
+        
+        EVALS["✅ Evaluations
+        • Quality scoring
+        • A/B testing"]
+    end
+
+    subgraph Notifications["Notifications"]
+        EMAIL["📧 Email (Resend)"]
+    end
+
+    %% Connections
+    LASTFM -.->|scrobbles| FETCH
+    WEB -.->|search results| SEARCH_NEW
+    WEB -.->|search results| SEARCH_CLASSIC
+    LLM -.->|recommendations| GENERATE
+    
+    LangGraph -.->|traces| TRACES
+    LangGraph -.->|metadata| SESSIONS
+    
+    END_NODE --> EMAIL
+
+    %% Styling
+    classDef external fill:#535353,stroke:#1DB954,color:#fff
+    classDef node fill:#191414,stroke:#1DB954,color:#fff
+    classDef router fill:#1DB954,stroke:#1ed760,color:#191414
+    classDef obs fill:#282828,stroke:#1DB954,color:#fff
+    
+    class LASTFM,WEB,LLM external
+    class FETCH,SEARCH_NEW,SEARCH_CLASSIC,GENERATE node
+    class ROUTER router
+    class TRACES,SESSIONS,EVALS obs
