@@ -89,18 +89,18 @@ class WebSearcher:
 
         queries = []
         for site, search_term in sources:
-            queries.append(f"{site} {search_term} 2025")
+            queries.append(f"{site} {search_term} 2026")
 
         # Add genre-specific searches on Pitchfork/Stereogum
         if genres:
             for genre in genres[:2]:
-                queries.append(f"site:pitchfork.com {genre} album review 2025")
-                queries.append(f"site:stereogum.com {genre} new album 2025")
+                queries.append(f"site:pitchfork.com {genre} album review 2026")
+                queries.append(f"site:stereogum.com {genre} new album 2026")
 
         # Search for similar artists' new releases
         if artists:
             for artist in artists[:3]:
-                queries.append(f'"{artist}" new album 2025')
+                queries.append(f'"{artist}" new album 2026')
 
         seen_urls = set()
         for query in queries:
