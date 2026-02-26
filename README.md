@@ -1,52 +1,23 @@
 # tocadiscos
 
-A LangGraph-powered agentic workflow that generates personalized music recommendations based on your Last.fm listening history, with observability via Langfuse.
+A LangGraph-powered agentic workflow that generates personalized music recommendations based on your Last.fm listening history, with observability via Langfuse and Braintrust.
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           LANGGRAPH WORKFLOW                                │
-│  ┌──────────────────────────────────────────────────────────────────────┐  │
-│  │                                                                      │  │
-│  │   ┌──────────────┐    ┌─────────────────┐    ┌──────────────────┐   │  │
-│  │   │   START      │───▶│ Fetch Last.fm   │───▶│  Route by Type   │   │  │
-│  │   └──────────────┘    │  Listening Data │    └────────┬─────────┘   │  │
-│  │                       └─────────────────┘             │             │  │
-│  │                                                       │             │  │
-│  │                    ┌──────────────────────────────────┼─────────┐   │  │
-│  │                    │                                  │         │   │  │
-│  │                    ▼                                  ▼         │   │  │
-│  │         ┌──────────────────┐              ┌──────────────────┐  │   │  │
-│  │         │ Search New       │              │ Search Classic   │  │   │  │
-│  │         │ Releases (Web)   │              │ Albums (Web)     │  │   │  │
-│  │         └────────┬─────────┘              └────────┬─────────┘  │   │  │
-│  │                  │                                 │            │   │  │
-│  │                  └──────────────┬──────────────────┘            │   │  │
-│  │                                 ▼                               │   │  │
-│  │                    ┌────────────────────────┐                   │   │  │
-│  │                    │  Generate Personalized │                   │   │  │
-│  │                    │  Recommendations (LLM) │                   │   │  │
-│  │                    └───────────┬────────────┘                   │   │  │
-│  │                                │                                │   │  │
-│  │                                ▼                                │   │  │
-│  │                         ┌──────────┐                            │   │  │
-│  │                         │   END    │                            │   │  │
-│  │                         └──────────┘                            │   │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────────────┘
-        │                                                      │
-        │ Traces                                               │ Results
-        ▼                                                      ▼
-┌───────────────────┐                              ┌───────────────────────┐
-│     LANGFUSE      │                              │    NOTIFICATIONS      │
-│  (Observability)  │                              │  ┌─────────────────┐  │
-│                   │                              │  │     Email       │  │
-│  • Traces         │                              │  │    (Resend)     │  │
-│  • Latency        │                              │  └─────────────────┘  │
-│  • Token Usage    │                              │                       │
-│  • Costs          │                              │                       │
-└───────────────────┘                              └───────────────────────┘
+```mermaid
+graph TD
+    A[Fetch Last.fm Listening Data] --> B{Route by Type}
+    B -->|new releases| C[Search New Releases]
+    B -->|classics| D[Search Classic Albums]
+    C --> E[Generate Recommendations]
+    D --> E
+    E --> F[Langfuse]
+    E --> G[Braintrust]
+    E --> H[Email via Resend]
+
+    style F fill:#5046e5,color:#fff
+    style G fill:#f59e0b,color:#fff
+    style H fill:#10b981,color:#fff
 ```
 
 ## Quick Start
@@ -91,7 +62,7 @@ tocadiscos/
 ├── .env.example           # Environment template
 └── src/
     ├── __init__.py
-    ├── agent.py           # LangGraph workflow + Langfuse integration
+    ├── agent.py           # LangGraph workflow + Langfuse/Braintrust integration
     ├── lastfm_client.py   # Last.fm API wrapper
     ├── web_search.py      # Web search for album discovery
     └── notifications.py   # Email notifications (Resend)
@@ -125,7 +96,7 @@ Claude analyzes:
 - Produces 5 personalized recommendations with explanations
 
 ### 4. Observe & Notify
-- All steps are traced to Langfuse for debugging and analysis
+- All steps are traced to Langfuse and Braintrust for debugging and analysis
 - Results can be sent via email (Resend)
 
 ## License
