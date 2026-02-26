@@ -15,6 +15,8 @@ dependencies = [
     "langchain-community>=0.3.0",
     # Observability
     "langfuse>=2.50.0",
+    "braintrust>=0.0.160",
+    "braintrust-langchain",
     # HTTP & API
     "httpx>=0.27.0",
     "aiohttp>=3.9.0",

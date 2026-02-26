@@ -11,6 +11,8 @@ from typing import Annotated, Any, Literal
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_mistralai import ChatMistralAI
+from braintrust import init_logger
+from braintrust_langchain import BraintrustCallbackHandler
 from langfuse.langchain import CallbackHandler
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
@@ -352,6 +354,8 @@ class MusicRecommendationAgent:
         # CallbackHandler reads from LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY,
         # and LANGFUSE_HOST environment variables automatically
         self.langfuse_handler = CallbackHandler()
+        init_logger(project="tocadiscos")
+        self.braintrust_handler = BraintrustCallbackHandler()
 
     def get_new_release_recommendations(
         self,
@@ -377,7 +381,7 @@ class MusicRecommendationAgent:
             metadata["langfuse_session_id"] = session_id
 
         config: dict[str, Any] = {
-            "callbacks": [self.langfuse_handler],
+            "callbacks": [self.langfuse_handler, self.braintrust_handler],
             "metadata": metadata,
         }
 
@@ -413,7 +417,7 @@ class MusicRecommendationAgent:
             metadata["langfuse_session_id"] = session_id
 
         config: dict[str, Any] = {
-            "callbacks": [self.langfuse_handler],
+            "callbacks": [self.langfuse_handler, self.braintrust_handler],
             "metadata": metadata,
         }
 
