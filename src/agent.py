@@ -5,7 +5,7 @@ LangGraph workflow for personalized album recommendations with Langfuse tracing.
 """
 
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated, Any, Literal
 
 from langchain_anthropic import ChatAnthropic
@@ -182,10 +182,11 @@ def generate_recommendations(state: AgentState) -> dict:
 
     # Build the prompt
     if rec_type == "new_releases":
-        task = """Based on the user's listening profile and the search results about new album releases,
-recommend 5 NEW albums (released in the last week) that would match their taste.
+        cutoff = (datetime.now() - timedelta(days=15)).strftime("%B %d, %Y")
+        task = f"""Based on the user's listening profile and the search results about new album releases,
+recommend 5 NEW albums (released in the last 15 days) that would match their taste.
 
-IMPORTANT: Only recommend albums that were ACTUALLY released this week/month.
+IMPORTANT: Only recommend albums released on or after {cutoff}.
 For each album, explain WHY it matches the user's taste based on their listening history."""
     else:
         task = """Based on the user's listening profile and the search results about classic albums,

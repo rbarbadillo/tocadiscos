@@ -4,6 +4,8 @@ Web Search Module for Album Discovery
 Uses DuckDuckGo search to find new album releases and classic album lists.
 """
 
+from datetime import datetime
+
 from ddgs import DDGS
 from pydantic import BaseModel
 
@@ -40,7 +42,7 @@ class WebSearcher:
             results = self.ddgs.text(
                 query,
                 max_results=max_results,
-                timelimit="w",  # Last week
+                timelimit="m",  # Last month (smallest bracket covering 15 days)
             )
             return [
                 SearchResult(
@@ -87,20 +89,21 @@ class WebSearcher:
             ("site:thelineofbestfit.com", "album review"),
         ]
 
+        year = datetime.now().year
         queries = []
         for site, search_term in sources:
-            queries.append(f"{site} {search_term} 2026")
+            queries.append(f"{site} {search_term} {year}")
 
         # Add genre-specific searches on Pitchfork/Stereogum
         if genres:
             for genre in genres[:2]:
-                queries.append(f"site:pitchfork.com {genre} album review 2026")
-                queries.append(f"site:stereogum.com {genre} new album 2026")
+                queries.append(f"site:pitchfork.com {genre} album review {year}")
+                queries.append(f"site:stereogum.com {genre} new album {year}")
 
         # Search for similar artists' new releases
         if artists:
             for artist in artists[:3]:
-                queries.append(f'"{artist}" new album 2026')
+                queries.append(f'"{artist}" new album {year}')
 
         seen_urls = set()
         for query in queries:
