@@ -1,0 +1,2 @@
+# Delay package resolution so newly published versions have time to settle.
+exclude-newer = "P7D"

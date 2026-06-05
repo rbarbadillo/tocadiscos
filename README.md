@@ -29,6 +29,9 @@ cd tocadiscos
 uv sync
 ```
 
+The repository `uv.toml` keeps dependency installs seven days behind newly
+published package versions.
+
 ### 2. Configure Environment
 
 ```bash
