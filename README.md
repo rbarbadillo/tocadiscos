@@ -1,6 +1,6 @@
 # tocadiscos
 
-A LangGraph-powered agentic workflow that generates personalized music recommendations based on your Last.fm listening history, with observability via Langfuse and Braintrust.
+A LangGraph-powered agentic workflow that generates personalized music recommendations based on your Last.fm listening history, with Langfuse tracing and email notifications.
 
 ## Architecture
 
@@ -11,12 +11,12 @@ graph TD
     B -->|classics| D[Search Classic Albums]
     C --> E[Generate Recommendations]
     D --> E
-    E --> F[Langfuse]
-    E --> G[Braintrust]
-    E --> H[Email via Resend]
+    E --> F[Mistral Medium 3.5]
+    F --> G[Langfuse]
+    F --> H[Email via Resend]
 
-    style F fill:#5046e5,color:#fff
-    style G fill:#f59e0b,color:#fff
+    style F fill:#f59e0b,color:#fff
+    style G fill:#5046e5,color:#fff
     style H fill:#10b981,color:#fff
 ```
 
@@ -62,10 +62,11 @@ tocadiscos/
 ├── main.py                 # CLI entry point
 ├── pyproject.toml          # Project config & dependencies
 ├── uv.lock                 # Locked dependencies
+├── uv.toml                 # uv resolver config with 7-day install delay
 ├── .env.example           # Environment template
 └── src/
     ├── __init__.py
-    ├── agent.py           # LangGraph workflow + Langfuse/Braintrust integration
+    ├── agent.py           # LangGraph workflow + Langfuse integration
     ├── lastfm_client.py   # Last.fm API wrapper
     ├── web_search.py      # Web search for album discovery
     └── notifications.py   # Email notifications (Resend)
@@ -81,7 +82,7 @@ The agent calls Last.fm API to get your last 30 days of scrobbles, then:
 
 ### 2. Search for Albums
 Based on your taste profile:
-- **New Releases**: Searches curated music publications for recent reviews:
+- **New Releases**: Searches curated music publications for albums released in the last 15 days:
   - [Pitchfork](https://pitchfork.com) - Album reviews
   - [Stereogum](https://stereogum.com) - Album of the week
   - [Consequence of Sound](https://consequence.net) - New album streams
@@ -93,13 +94,15 @@ Based on your taste profile:
 - **Classics**: Searches for "greatest albums" lists, excluding artists you already know
 
 ### 3. Generate Recommendations
-Claude analyzes:
+Mistral Medium 3.5 analyzes by default:
 - Your taste profile (artists, genres, listening patterns)
 - Search results from the web
 - Produces 5 personalized recommendations with explanations
 
+Set `LLM_PROVIDER=anthropic` to use the Anthropic path instead.
+
 ### 4. Observe & Notify
-- All steps are traced to Langfuse and Braintrust for debugging and analysis
+- All steps are traced to Langfuse for debugging and analysis
 - Results can be sent via email (Resend)
 
 ## License
