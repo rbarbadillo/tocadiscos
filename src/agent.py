@@ -247,7 +247,7 @@ Based on this information and the user's taste profile, provide your album recom
         )
     else:  # Default to Mistral
         llm = ChatMistralAI(
-            model="mistral-large-latest",
+            model="mistral-medium-3-5",
             temperature=0.7,
         )
 
